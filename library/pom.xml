@@ -4,9 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.github.cuzfrog</groupId>
-        <artifactId>multi-module-parent</artifactId>
+        <artifactId>java-typeclass-experimental</artifactId>
         <version>0.1.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <artifactId>library</artifactId>
     <name>library</name>
@@ -17,6 +16,18 @@
             <groupId>com.github.cuzfrog</groupId>
             <artifactId>dependency</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
         </dependency>
     </dependencies>
 </project>
