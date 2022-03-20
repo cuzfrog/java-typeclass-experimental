@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 @Retention(RetentionPolicy.CLASS)
-public @interface Implementation {
+public @interface Typeclass {
 }

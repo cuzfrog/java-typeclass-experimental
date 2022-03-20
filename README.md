@@ -1,1 +1,2 @@
-# mvn-template
+# Typeclass experimental impl in Java
+
