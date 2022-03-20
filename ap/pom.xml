@@ -7,12 +7,16 @@
         <artifactId>java-typeclass-experimental</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>dependency</artifactId>
-    <name>dependency</name>
-    <description>some-descr</description>
+    <artifactId>ap-parent</artifactId>
+    <packaging>pom</packaging>
 
+    <modules>
+        <module>library</module>
+        <module>dependency</module>
+    </modules>
 
-    <dependencies>
-        
-    </dependencies>
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
 </project>
