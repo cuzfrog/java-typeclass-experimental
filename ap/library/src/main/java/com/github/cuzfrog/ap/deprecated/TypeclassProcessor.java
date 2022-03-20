@@ -1,7 +1,8 @@
-package com.github.cuzfrog.ap;
+package com.github.cuzfrog.ap.deprecated;
+
+import com.github.cuzfrog.ap.utils.Logger;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
@@ -11,6 +12,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,16 +28,23 @@ final class TypeclassProcessor {
         this.elements = processingEnv.getElementUtils();
     }
 
-    void process(Element typeclass) {
+    Set<ImplInfo> deriveImplInfo(TypeElement typeclass) {
         if (typeclass.getKind() != ElementKind.INTERFACE) {
             log.error("Typeclass can only be interface.", typeclass);
-            return;
+            return Collections.emptySet();
         }
         if (((DeclaredType)typeclass.asType()).getTypeArguments().isEmpty()) {
             log.error("Typeclass must have at least 1 type argument.", typeclass);
         }
-        Set<TypeElement> implClasses = getImplementations((TypeElement) typeclass);
-        implClasses.forEach(implClass -> processImplClass(implClass, (TypeElement) typeclass));
+        Set<TypeElement> implClasses = getImplementations(typeclass);
+        return implClasses.stream().map(implClass -> {
+            try {
+                return new ImplInfo(typeclass, implClass, getTypeArgument(implClass, typeclass));
+            } catch (Exception e) {
+                log.error(e.getMessage(), implClass);
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toSet());
     }
 
     private Set<TypeElement> getImplementations(TypeElement typeclass) {
@@ -51,7 +60,8 @@ final class TypeclassProcessor {
         return implClasses;
     }
 
-    private void processImplClass(TypeElement implClass, TypeElement typeclass) {
+    private DeclaredType getTypeArgument(TypeElement implClass, TypeElement typeclass) {
+        log.note("Impl discovered for typeclass " + typeclass, implClass);
         DeclaredType typeclassType = findInterfaceType(implClass.asType(), types.erasure(typeclass.asType()));
         if (typeclassType == null) {
             throw new AssertionError(String.format("%s does not impl %s, it could be an error with this compilation.", implClass, typeclass));
@@ -59,11 +69,13 @@ final class TypeclassProcessor {
 
         List<? extends TypeMirror> typeArguments = typeclassType.getTypeArguments();
         if (typeArguments.isEmpty()) {
-            log.error("Impl of a typeclass must have type argument(s) provided.", implClass);
-            return;
+            throw new IllegalArgumentException("Impl of a typeclass must have type argument(s) provided.");
         }
         TypeMirror typeArgument = typeArguments.get(0);
-        log.note("Kind:" + typeArgument.getKind(), implClass);
+        if (typeArgument.getKind() != TypeKind.DECLARED) {
+            throw new IllegalArgumentException("First type arugment is the target type and must be declared type, but it's " + typeArgument);
+        }
+        return (DeclaredType) typeArgument;
     }
 
     private DeclaredType findInterfaceType(TypeMirror clazz, TypeMirror typeclassType) {

@@ -6,8 +6,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE})
 @Documented
 @Retention(RetentionPolicy.CLASS)
-public @interface Typeclass {
+public @interface Implementation {
+    /** The typeclass interface */
+    Class<?>[] value() default {};
 }
