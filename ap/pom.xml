@@ -7,16 +7,45 @@
         <artifactId>java-typeclass-experimental</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>ap-parent</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>library</module>
-        <module>dependency</module>
-    </modules>
+    <artifactId>ap</artifactId>
+    <name>library</name>
+    <description>some-descr</description>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.jdt.core.compiler</groupId>
+            <artifactId>ecj</artifactId>
+            <version>4.6.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.openjdk</groupId>
+            <artifactId>javac8</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>localrepository</id>
+            <url>file://${project.basedir}/libs</url>
+        </repository>
+    </repositories>
 </project>
