@@ -8,7 +8,7 @@
         <version>0.1.0</version>
     </parent>
     <artifactId>ap</artifactId>
-    <name>library</name>
+    <name>ap</name>
     <description>some-descr</description>
 
     <properties>

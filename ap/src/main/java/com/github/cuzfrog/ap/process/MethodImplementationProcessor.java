@@ -4,7 +4,6 @@ import com.github.cuzfrog.ap.Implementation;
 import com.github.cuzfrog.ap.utils.Logger;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -22,10 +21,9 @@ final class MethodImplementationProcessor implements ImplementationProcessor {
     }
 
     @Override
-    public void process(Element element) {
-        ExecutableElement method = (ExecutableElement) element;
-        Implementation annotation = method.getAnnotation(Implementation.class);
-        if (annotation.value().length != 0) {
+    public void process(ProcessingContext ctx) {
+        ExecutableElement method = (ExecutableElement) ctx.getElement();
+        if (!ctx.getTypeclassTypes().isEmpty()) {
             throw new AnnotationProcessingException("Method implementation does not support specifying typeclass", method);
         }
 

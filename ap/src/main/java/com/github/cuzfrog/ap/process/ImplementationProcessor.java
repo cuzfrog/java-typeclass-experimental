@@ -1,14 +1,14 @@
 package com.github.cuzfrog.ap.process;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 
 public interface ImplementationProcessor {
-    void process(Element element);
+    void process(ProcessingContext ctx);
 
     static ImplementationProcessor create(ProcessingEnvironment processingEnv) {
         return new CompositeImplementationProcessor(
-                new ValidationProcessor(),
+                new AnnotationValueExtractProcessor(processingEnv),
+                new ValidationProcessor(processingEnv),
                 new MethodImplementationProcessor(processingEnv)
         );
     }

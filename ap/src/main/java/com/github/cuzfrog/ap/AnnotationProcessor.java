@@ -1,11 +1,15 @@
 package com.github.cuzfrog.ap;
 
+import com.github.cuzfrog.ap.process.AnnotationProcessingException;
 import com.github.cuzfrog.ap.process.ImplementationProcessor;
+import com.github.cuzfrog.ap.process.ProcessingContext;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +21,14 @@ public final class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         ImplementationProcessor processor = ImplementationProcessor.create(processingEnv);
-        roundEnv.getElementsAnnotatedWith(Implementation.class).forEach(processor::process);
+        for (Element element : roundEnv.getElementsAnnotatedWith(Implementation.class)) {
+            ProcessingContext processingContext = new ProcessingContext(element);
+            try {
+                processor.process(processingContext);
+            } catch (AnnotationProcessingException e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.getElement());
+            }
+        }
         return true;
     }
 
