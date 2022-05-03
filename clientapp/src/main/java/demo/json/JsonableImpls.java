@@ -8,8 +8,8 @@ final class JsonableImpls {
     @Implementation(Jsonable.class)
     final Jsonable<ObjectA> aJsonable = new AJsonable();
 
-    @Implementation
-    static String toJson(ObjectB objectB) {
-        return objectB == null ? null : objectB.toString();
+    @Implementation(Jsonable.class)
+    static String toJson(ObjectB self) {
+        return self.toString();
     }
 }

@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Implementation {
     /** The typeclass interface */
-    Class<?>[] value() default {};
+    Class<?> value();
 }

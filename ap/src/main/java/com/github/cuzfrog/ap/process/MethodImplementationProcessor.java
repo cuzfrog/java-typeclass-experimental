@@ -1,32 +1,40 @@
 package com.github.cuzfrog.ap.process;
 
-import com.github.cuzfrog.ap.Implementation;
-import com.github.cuzfrog.ap.utils.Logger;
+import com.github.cuzfrog.ap.process.compile.SourceModifier;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import java.util.List;
+import java.util.stream.Collectors;
 
 final class MethodImplementationProcessor implements ImplementationProcessor {
-    private final Logger log;
-    private final Types types;
-    private final Elements elements;
+    private final SourceModifier sourceModifier;
 
     MethodImplementationProcessor(ProcessingEnvironment processingEnv) {
-        this.log = new Logger(processingEnv.getMessager());
-        this.types = processingEnv.getTypeUtils();
-        this.elements = processingEnv.getElementUtils();
-//        if (processingEnv instanceof JavacProcessingEnvironment)
+        this.sourceModifier = SourceModifier.create(processingEnv);
     }
 
     @Override
     public void process(ProcessingContext ctx) {
         ExecutableElement method = (ExecutableElement) ctx.getElement();
-        if (!ctx.getTypeclassTypes().isEmpty()) {
-            throw new AnnotationProcessingException("Method implementation does not support specifying typeclass", method);
+
+        List<? extends VariableElement> params = method.getParameters();
+        if (params.isEmpty()) {
+            throw new AnnotationProcessingException("Method implementation must have the 1st param as the self reference", method);
         }
+        VariableElement selfParam = params.get(0);
 
+        TypeElement typeclassElement = (TypeElement) ctx.getTypeclassType().asElement();
+        List<ExecutableElement> typeclassMethods = typeclassElement.getEnclosedElements().stream()
+                .filter(elem -> elem.getKind() == ElementKind.METHOD && !elem.getModifiers().contains(Modifier.STATIC))
+                .map(elem -> (ExecutableElement)elem)
+                .collect(Collectors.toList());
 
+        sourceModifier.insertImpl((DeclaredType) (selfParam.asType()), method, typeclassMethods.get(0));
     }
 }

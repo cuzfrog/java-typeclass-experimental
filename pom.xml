@@ -32,6 +32,18 @@
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
+                <configuration>
+                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.build.directory}/</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
         </plugins>
     </build>

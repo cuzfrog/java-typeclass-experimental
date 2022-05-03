@@ -14,12 +14,8 @@ final class ValidationProcessor extends AbstractImplementationProcessor {
 
     @Override
     public void process(ProcessingContext ctx) {
-//
-//
-//        for (Class<?> typeclass : annotation.value()) {
-//            if (!typeclass.isInterface()) {
-//                throw new AnnotationProcessingException("Typeclass must be interface, but it's " + typeclass, element);
-//            }
-//        }
+        if (ctx.getTypeclassType() == null ) {
+            throw new AnnotationProcessingException("No typeclass given.", ctx.getElement());
+        }
     }
 }

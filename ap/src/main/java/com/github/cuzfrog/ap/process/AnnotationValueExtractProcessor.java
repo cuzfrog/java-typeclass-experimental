@@ -8,8 +8,6 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.DeclaredType;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 final class AnnotationValueExtractProcessor extends AbstractImplementationProcessor {
@@ -17,11 +15,11 @@ final class AnnotationValueExtractProcessor extends AbstractImplementationProces
         super(processingEnv);
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
     public void process(ProcessingContext ctx) {
         AnnotationValue annotationValue = getAnnotationMirror(ctx.getElement());
-        List<DeclaredType> types = annotationValue == null ? Collections.emptyList() : (List<DeclaredType>)annotationValue.getValue();
-        ctx.setTypeclassTypes(types);
+        DeclaredType type = annotationValue == null ? null : (DeclaredType)annotationValue.getValue();
+        ctx.setTypeclassType(type);
     }
 
     private static AnnotationValue getAnnotationMirror(Element element) {
