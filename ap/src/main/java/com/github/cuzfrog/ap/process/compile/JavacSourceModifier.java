@@ -34,16 +34,35 @@ final class JavacSourceModifier implements SourceModifier {
     @Override
     public void insertImpl(DeclaredType targetType, Element implElem, ExecutableElement typeclassMethod) {
         JCTree.JCClassDecl objTree = (JCTree.JCClassDecl) elements.getTree(targetType.asElement());
-        JCTree.JCMethodDecl method = createMethod(typeclassMethod);
+        JCTree.JCMethodDecl method = createMethod(typeclassMethod, implElem);
         objTree.defs = objTree.defs.append(method);
         System.out.println(objTree);
     }
 
-    private JCTree.JCMethodDecl createMethod(ExecutableElement typeclassMethod) {
+    private JCTree.JCMethodDecl createMethod(ExecutableElement typeclassMethod, Element implElem) {
         JCTree.JCExpression returnType = treeMaker.Type((Type) typeclassMethod.getReturnType());
 
         ListBuffer<JCTree.JCStatement> statements = new ListBuffer<>();
-        statements.append(treeMaker.Return(treeMaker.Literal("abc")));
+        TypeElement implClass = (TypeElement) implElem.getEnclosingElement();
+        JCTree.JCExpression implClassExpr = treeMaker.Type((Type)implClass.asType());
+        final JCTree.JCStatement call;
+        if (implElem.getKind() == ElementKind.METHOD) {
+            ExecutableElement calleeMethod = (ExecutableElement) implElem;
+            JCTree.JCExpression calleeClassId = treeMaker.Ident(elements.getName(implClass.getQualifiedName()))
+                    .setType((Type)implClass.asType());
+            JCTree.JCExpression callee = treeMaker.Select(implClassExpr, elements.getName(calleeMethod.getSimpleName()))
+                    .setType((Type) typeclassMethod.getReturnType());
+            JCTree.JCExpression arg = treeMaker.This((Type.ClassType)calleeMethod.getParameters().get(0).asType());
+            JCTree.JCMethodInvocation methodInvoc = treeMaker.App(callee, List.of(arg));
+            methodInvoc.setType((Type) typeclassMethod.getReturnType());
+            call = treeMaker.Call(methodInvoc);
+        } else if (implElem.getKind() == ElementKind.FIELD) {
+            throw new AssertionError("Not implemented!");
+        } else {
+            throw new UnsupportedOperationException("Not support elem kind:" + implElem.getKind());
+        }
+
+        statements.append(call);
 
         JCTree.JCBlock methodBody = treeMaker.Block(0, statements.toList());
         return treeMaker.MethodDef(
